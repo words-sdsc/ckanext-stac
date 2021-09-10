@@ -17,7 +17,7 @@ class StacPlugin(plugins.SingletonPlugin):
 from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 
-class stac(SingletonPlugin):
+class StacPlugin(SingletonPlugin):
     '''
     A Test Harvester
     '''
