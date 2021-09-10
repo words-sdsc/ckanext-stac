@@ -17,7 +17,7 @@ class StacPlugin(plugins.SingletonPlugin):
 from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 
-class StacPlugin(SingletonPlugin):
+class StacHarvester(SingletonPlugin):
     '''
     A Test Harvester
     '''
@@ -50,7 +50,7 @@ class StacPlugin(SingletonPlugin):
         '''
         return {
                 'name': 'stac',
-                'title': 'SpatioTemporal Asset Catalog',
+                'title': 'SpatioTemporal Asset Catalog (STAC) harvester',
                 'description': 'A harvester for SpatioTemporal Asset Catalogs'
             }
 
