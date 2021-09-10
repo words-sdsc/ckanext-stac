@@ -1,53 +1,14 @@
-"""
-import ckan.plugins as plugins
-import ckan.plugins.toolkit as toolkit
-
-
-class StacPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IConfigurer)
-
-    # IConfigurer
-
-    def update_config(self, config_):
-        toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic', 'stac')
-"""
-
 from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 
 class StacHarvester(SingletonPlugin):
     '''
-    A Test Harvester
+    A SpatioTemporal Asset Catalog (STAC) harvester
     '''
     implements(IHarvester)
 
     def info(self):
-        '''
-        Harvesting implementations must provide this method, which will return
-        a dictionary containing different descriptors of the harvester. The
-        returned dictionary should contain:
-
-        * name: machine-readable name. This will be the value stored in the
-        database, and the one used by ckanext-harvest to call the appropiate
-        harvester.
-        * title: human-readable name. This will appear in the form's select box
-        in the WUI.
-        * description: a small description of what the harvester does. This
-        will appear on the form as a guidance to the user.
-
-        A complete example may be::
-
-            {
-                'name': 'csw',
-                'title': 'CSW Server',
-                'description': 'A server that implements OGC's Catalog Service
-                                for the Web (CSW) standard'
-            }
-
-        :returns: A dictionary with the harvester descriptors
-        '''
+        
         return {
                 'name': 'stac',
                 'title': 'SpatioTemporal Asset Catalog (STAC) harvester',
