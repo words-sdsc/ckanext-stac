@@ -31,7 +31,7 @@
 =============
 ckanext-stac
 =============
-A SpatioTemporal Asset Catalog (STAC) harvester. See https://stacindex.org/ for more details.
+A SpatioTemporal Asset Catalog (STAC) harvester extension for ckan. See https://stacindex.org/ for more details.
 
 .. Put a description of your extension here:
    What does it do? What features does it have?
