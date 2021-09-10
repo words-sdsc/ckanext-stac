@@ -1,7 +1,10 @@
-from ckan.plugins.core import SingletonPlugin, implements
+from ckanext.harvest.harvesters.base import HarvesterBase
+from ckan.plugins.core import implements
+#from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 
-class StacHarvester(SingletonPlugin):
+class StacHarvester(HarvesterBase):
+#class StacHarvester(SingletonPlugin):
     '''
     A SpatioTemporal Asset Catalog (STAC) harvester
     '''
