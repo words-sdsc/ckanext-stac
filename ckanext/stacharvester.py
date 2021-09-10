@@ -32,12 +32,12 @@ def info(self):
 
     :returns: A dictionary with the harvester descriptors
     '''
-    d={
+    return {
             'name': 'stac',
             'title': 'SpatioTemporal Asset Catalog',
             'description': 'A harvester for SpatioTemporal Asset Catalogs'
         }
-    return d
+    
 
 def validate_config(self, config):
     '''
