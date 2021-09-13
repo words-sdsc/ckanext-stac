@@ -3,6 +3,7 @@ from ckan.plugins.core import implements
 #from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 #import pystac
+from ckan.lib.munge import munge_title_to_name, munge_tag
 
 class StacHarvester(HarvesterBase):
 #class StacHarvester(SingletonPlugin):
@@ -19,6 +20,194 @@ class StacHarvester(HarvesterBase):
                 'description': 'A harvester for SpatioTemporal Asset Catalogs'
             }
 
+    def _delete_dataset(self, id):
+        base_context = {
+            'model': model,
+            'session': model.Session,
+            'user': self._get_user_name(),
+            'ignore_auth': True
+        }
+        # Delete package
+        toolkit.get_action('package_delete')(base_context, {'id': id})
+        log.info('Deleted package with id {0}'.format(id))
+
+    def _get_existing_dataset(self, guid):
+        '''
+        Check if a dataset with an `identifier` extra already exists.
+
+        Return a dict in `package_show` format.
+        '''
+        datasets = model.Session.query(model.Package.id) \
+            .join(model.PackageExtra) \
+            .filter(model.PackageExtra.key == 'identifier') \
+            .filter(model.PackageExtra.value == guid) \
+            .filter(model.Package.state == 'active') \
+            .all()
+
+        if not datasets:
+            return None
+        elif len(datasets) > 1:
+            log.error('Found more than one dataset with the same guid: {0}'
+                      .format(guid))
+
+        return toolkit.get_action('package_show')({}, {'id': datasets[0][0]})
+
+    def _get_object_extra(self, harvest_object, key):
+        '''
+        Helper function for retrieving the value from a harvest object extra,
+        given the key
+        '''
+        for extra in harvest_object.extras:
+            if extra.key == key:
+                return extra.value
+        return None
+
+    def _get_package_extra(self, pkg_dict, key):
+        '''
+        Helper function to retrieve the value from a package dict extra, given
+        the key.
+        '''
+        for extra in pkg_dict.get('extras', []):
+            if extra.get('key') == key:
+                return extra.get('value')
+        return None
+
+    def _mark_datasets_for_deletion(self, guids_in_source, harvest_job):
+        '''
+        Given a list of guids in the remote source, check which in the DB need
+        to be deleted. Query all guids in the DB for this source and calculate
+        the difference. For each of these create a HarvestObject with the
+        dataset id, marked for deletion.
+
+        Return a list with the ids of the Harvest Objects to delete.
+        '''
+
+        object_ids = []
+
+        # Get all previous current guids and dataset ids for this source
+        query = \
+            model.Session.query(HarvestObject.guid, HarvestObject.package_id) \
+            .filter(HarvestObject.current == True) \
+            .filter(HarvestObject.harvest_source_id == harvest_job.source.id)  # noqa
+
+        guid_to_package_id = {}
+        for guid, package_id in query:
+            guid_to_package_id[guid] = package_id
+
+        guids_in_db = guid_to_package_id.keys()
+
+        # Get objects/datasets to delete (ie in the DB but not in the source)
+        guids_to_delete = set(guids_in_db) - set(guids_in_source)
+
+        # Create a harvest object for each of them, flagged for deletion
+        for guid in guids_to_delete:
+            obj = HarvestObject(guid=guid, job=harvest_job,
+                                package_id=guid_to_package_id[guid],
+                                extras=[HarvestObjectExtra(key='status',
+                                                           value='delete')])
+
+            # Mark the rest of objects for this guid as not current
+            model.Session.query(HarvestObject) \
+                         .filter_by(guid=guid) \
+                         .update({'current': False}, False)
+            obj.save()
+            object_ids.append(obj.id)
+
+        return object_ids
+
+    def _build_package_dict(self, context, harvest_object):
+        '''
+        Build and return a package_dict suitable for use with CKAN
+        `package_create` and `package_update`.
+        '''
+
+        # Local harvest source organization
+        source_dataset = toolkit.get_action('package_show')(
+            context.copy(),
+            {'id': harvest_object.source.id}
+        )
+        local_org = source_dataset.get('owner_org')
+
+        res = json.loads(harvest_object.content)
+
+        package_dict = {
+            'title': res['resource']['name'],
+            'name': self._gen_new_name(res['resource']['name']),
+            'url': res.get('permalink', ''),
+            'notes': res['resource'].get('description', ''),
+            'author': res['resource']['attribution'],
+            'tags': [],
+            'extras': [],
+            'identifier': res['resource']['id'],
+            'owner_org': local_org,
+            'resources': [],
+        }
+
+        # Add tags
+        package_dict['tags'] = \
+            [{'name': munge_tag(t)}
+             for t in res['classification'].get('tags', [])
+             + res['classification'].get('domain_tags', [])]
+
+        # Add domain_metadata to extras
+        package_dict['extras'].extend(res['classification']
+                                      .get('domain_metadata', []))
+
+        # Add source createdAt to extras
+        package_dict['extras'].append({
+            'key': 'source_created_at',
+            'value': res['resource']['createdAt']
+        })
+
+        # Add source updatedAt to extras
+        package_dict['extras'].append({
+            'key': 'source_updated_at',
+            'value': res['resource']['updatedAt']
+        })
+
+        # Add owner_display_name to extras
+        package_dict['extras'].append({
+            'key': 'owner_display_name',
+            'value': res.get('owner', {}).get('display_name')
+        })
+
+        # Add categories to extras
+        package_dict['extras'].append({
+            'key': 'categories',
+            'value': [t
+                      for t in res['classification'].get('categories', [])
+                      + res['classification'].get('domain_categories', [])],
+        })
+
+        # Add metadata.license if available
+        if res['metadata'].get('license', False):
+            package_dict['extras'].append({
+                'key': 'license',
+                'value': res['metadata']['license']
+            })
+
+        # Add provenance
+        if res['resource'].get('provenance', False):
+            package_dict['provenance'] = res['resource']['provenance']
+
+        # Resources
+        package_dict['resources'] = [{
+            'url': DOWNLOAD_ENDPOINT_TEMPLATE.format(
+                domain=urlparse(harvest_object.source.url).hostname,
+                resource_id=res['resource']['id']),
+            'format': 'CSV'
+        }]
+
+        return package_dict
+
+    def process_package(self, package, harvest_object):
+        '''
+        Subclasses can override this method to perform additional processing on
+        package dicts during import_stage.
+        '''
+        return package
+    
+    
     def validate_config(self, config):
         '''
 
@@ -148,6 +337,7 @@ class StacHarvester(HarvesterBase):
         #for item in veg.get_all_items():
         #    d={'name':item.properties['metric'],'title':item.id,'date':item.get_datetime(),'spatial_extent':item.bbox,'url':item.assets[item.properties['metric']].get_absolute_href()}
         #    all_data.append(d)
+        """
         all_data=[{'name': 'CanopyBaseHeight',
  'title': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
  'date': datetime.datetime(2016, 7, 15, 18, 0, tzinfo=tzutc()),
@@ -156,6 +346,21 @@ class StacHarvester(HarvesterBase):
   42.0242173371539,
   -113.191354530481],
  'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif'}]
+        """
+        
+
+        all_data = [{
+                    'title': 'test_CFO_',
+                    'name': 'test_CFO',
+                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
+                    'notes': 'fake description',
+                    'author': 'fake author',
+                    'tags': [],
+                    'extras': [],
+                    'identifier': None,
+                    'owner_org': 'test_cfo',
+                    'resources': [],
+                }]
 
         object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
