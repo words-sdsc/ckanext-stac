@@ -359,7 +359,7 @@ class StacHarvester(HarvesterBase):
                     'extras': [],
                     'identifier': None,
                     'owner_org': 'test_cfo',
-                    'resources': [],
+                    'resources': {'id':1234}
                 }]
 
         object_ids, guids = _make_harvest_objs(all_data)
