@@ -267,6 +267,8 @@ class StacHarvester(HarvesterBase):
         :returns: A list of HarvestObject ids
         '''
         """
+	print('test')
+
         def _request_datasets_from_socrata(domain, limit=100, offset=0):
             api_request_url = \
                 '{0}?domains={1}&search_context={1}' \
