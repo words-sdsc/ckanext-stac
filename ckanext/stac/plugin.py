@@ -1,10 +1,20 @@
+from __future__ import unicode_literals
+import uuid
+from dateutil.parser import parse
+from simplejson.scanner import JSONDecodeError
+from ckan import model
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckan.plugins.core import implements
 #from ckan.plugins.core import SingletonPlugin, implements
+import ckan.plugins.toolkit as toolkit
 from ckanext.harvest.interfaces import IHarvester
+from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 #import pystac
 import requests, json
-from ckan.lib.munge import munge_title_to_name, munge_tag
+from ckan.lib.munge import munge_title_to_name, 
+from urlparse import urlparse
+import logging
+log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
 #class StacHarvester(SingletonPlugin):
@@ -308,7 +318,7 @@ class StacHarvester(HarvesterBase):
                     yield dataset
         """
         print('test')
-        
+
         def _make_harvest_objs(datasets):
             '''Create HarvestObject with STAC dataset content.'''
             obj_ids = []
