@@ -3,6 +3,7 @@ from ckan.plugins.core import implements
 #from ckan.plugins.core import SingletonPlugin, implements
 from ckanext.harvest.interfaces import IHarvester
 #import pystac
+import requests, json
 from ckan.lib.munge import munge_title_to_name, munge_tag
 
 class StacHarvester(HarvesterBase):
@@ -310,9 +311,9 @@ class StacHarvester(HarvesterBase):
             guids = []
             for d in datasets:
                 log.debug('Creating HarvestObject for {} {}'
-                          .format(d['resource']['name'],
-                                  d['resource']['id']))
-                obj = HarvestObject(guid=d['resource']['id'],
+                          .format(d['title'],
+                                  d['id']))
+                obj = HarvestObject(guid=d['id'],
                                     job=harvest_job,
                                     content=json.dumps(d),
                                     extras=[HarvestObjectExtra(
@@ -320,7 +321,7 @@ class StacHarvester(HarvesterBase):
                                                         value='hi!')])
                 obj.save()
                 obj_ids.append(obj.id)
-                guids.append(d['resource']['id'])
+                guids.append(d['id'])
             return obj_ids, guids
 
         log.debug('In StacHarvester gather_stage (%s)',
@@ -328,7 +329,10 @@ class StacHarvester(HarvesterBase):
 
         #domain = urlparse(harvest_job.source.url).hostname
         # set and read the catalog
-        #catalog_url = "https://storage.googleapis.com/cfo-public/catalog.json"
+        catalog_url = "https://storage.googleapis.com/cfo-public/catalog.json"
+        catalog = requests.get(catalog_json)
+        all_data = [catalog.json()]
+        
         #catalog = pystac.Catalog.from_file(catalog_url)
         #veg = catalog.get_child('vegetation')
         #items = veg.get_all_items()
@@ -348,7 +352,7 @@ class StacHarvester(HarvesterBase):
  'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif'}]
         """
         
-
+        """
         all_data = [{
                     'title': 'test_CFO_',
                     'name': 'test_CFO',
@@ -361,6 +365,7 @@ class StacHarvester(HarvesterBase):
                     'owner_org': 'test_cfo',
                     'resources': {'id':1234}
                 }]
+        """
 
         object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
