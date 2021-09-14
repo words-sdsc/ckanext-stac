@@ -142,20 +142,33 @@ class StacHarvester(HarvesterBase):
         res = json.loads(harvest_object.content)
 
         package_dict = {
-            'title': res['resource']['name'],
-            'name': self._gen_new_name(res['resource']['name']),
-            'url': res.get('permalink', ''),
-            'notes': res['resource'].get('description', ''),
-            'author': res['resource']['attribution'],
+            'title': res['title'],
+            'name': self._gen_new_name(res['name']),
+            'url': res['url'],
+            'notes': res['notes'],
+            'author': res['author'],
             'tags': [],
             'extras': [],
-            'identifier': res['resource']['id'],
+            'identifier': res['identifier'],
             'owner_org': local_org,
             'resources': [],
         }
+        """
+        all_data = [{
+                    'title': 'test_CFO_',
+                    'name': 'test_CFO',
+                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
+                    'notes': 'fake description',
+                    'author': 'fake author',
+                    'tags': [],
+                    'extras': [],
+                    'identifier': None,
+                    'owner_org': 'test_cfo',
+                    'id':123478676767677
+                }]
+        """
 
-
-
+        """
         # Add tags
         package_dict['tags'] = \
             [{'name': munge_tag(t)}
@@ -210,6 +223,7 @@ class StacHarvester(HarvesterBase):
                 resource_id=res['resource']['id']),
             'format': 'CSV'
         }]
+        """
 
         return package_dict
 
@@ -379,7 +393,7 @@ class StacHarvester(HarvesterBase):
                     'extras': [],
                     'identifier': None,
                     'owner_org': 'test_cfo',
-                    'id':1234
+                    'id':123478676767677
                 }]
         
 
