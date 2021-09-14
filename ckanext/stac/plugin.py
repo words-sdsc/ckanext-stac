@@ -11,7 +11,7 @@ from ckanext.harvest.interfaces import IHarvester
 from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 #import pystac
 import requests, json
-from ckan.lib.munge import munge_title_to_name, 
+from ckan.lib.munge import munge_title_to_name, munge_tag
 from urlparse import urlparse
 import logging
 log = logging.getLogger(__name__)
@@ -153,6 +153,8 @@ class StacHarvester(HarvesterBase):
             'owner_org': local_org,
             'resources': [],
         }
+
+
 
         # Add tags
         package_dict['tags'] = \
@@ -343,9 +345,9 @@ class StacHarvester(HarvesterBase):
 
         #domain = urlparse(harvest_job.source.url).hostname
         # set and read the catalog
-        catalog_url = "https://storage.googleapis.com/cfo-public/catalog.json"
-        catalog = requests.get(catalog_json)
-        all_data = [catalog.json()]
+        #catalog_url = "https://storage.googleapis.com/cfo-public/catalog.json"
+        #catalog = requests.get(catalog_json)
+        #all_data = [catalog.json()]
         
         #catalog = pystac.Catalog.from_file(catalog_url)
         #veg = catalog.get_child('vegetation')
@@ -366,7 +368,7 @@ class StacHarvester(HarvesterBase):
  'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif'}]
         """
         
-        """
+        
         all_data = [{
                     'title': 'test_CFO_',
                     'name': 'test_CFO',
@@ -377,9 +379,9 @@ class StacHarvester(HarvesterBase):
                     'extras': [],
                     'identifier': None,
                     'owner_org': 'test_cfo',
-                    'resources': {'id':1234}
+                    'id':1234
                 }]
-        """
+        
 
         object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
