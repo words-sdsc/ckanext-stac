@@ -267,7 +267,7 @@ class StacHarvester(HarvesterBase):
         :returns: A list of HarvestObject ids
         '''
         """
-	print('test')
+	
 
         def _request_datasets_from_socrata(domain, limit=100, offset=0):
             api_request_url = \
@@ -307,6 +307,8 @@ class StacHarvester(HarvesterBase):
                 for dataset in datasets:
                     yield dataset
         """
+        print('test')
+        
         def _make_harvest_objs(datasets):
             '''Create HarvestObject with STAC dataset content.'''
             obj_ids = []
