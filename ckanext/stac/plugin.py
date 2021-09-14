@@ -394,7 +394,20 @@ class StacHarvester(HarvesterBase):
                     'identifier': None,
                     'owner_org': 'test_cfo',
                     'id':123478676767677
-                }]
+                },
+                {
+                    'title': 'test_CFO_2',
+                    'name': 'test_CFO2',
+                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
+                    'notes': 'fake description2',
+                    'author': 'fake author2',
+                    'tags': [],
+                    'extras': [],
+                    'identifier': None,
+                    'owner_org': 'test_cfo',
+                    'id':123478676767678
+                }
+                ]
         
 
         object_ids, guids = _make_harvest_objs(all_data)
