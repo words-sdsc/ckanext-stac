@@ -145,13 +145,13 @@ class StacHarvester(HarvesterBase):
             'title': res['title'],
             'name': self._gen_new_name(res['name']),
             'url': res['url'],
-            'notes': res['notes'],
+            'notes': res['description'],
             'author': res['author'],
             'tags': [],
-            'extras': [],
-            'identifier': res['identifier'],
+            'extras': res['extras'],
+            
             'owner_org': local_org,
-            'resources': [],
+            'resources': res['resources'],
         }
         """
         all_data = [{
@@ -168,13 +168,11 @@ class StacHarvester(HarvesterBase):
                 }]
         """
 
-        """
+        
         # Add tags
-        package_dict['tags'] = \
-            [{'name': munge_tag(t)}
-             for t in res['classification'].get('tags', [])
-             + res['classification'].get('domain_tags', [])]
-
+        #package_dict['tags'] = [{'name': munge_tag(t)} for t in res['tags']]
+        
+        """
         # Add domain_metadata to extras
         package_dict['extras'].extend(res['classification']
                                       .get('domain_metadata', []))
@@ -333,7 +331,40 @@ class StacHarvester(HarvesterBase):
                 for dataset in datasets:
                     yield dataset
         """
-        print('test')
+        def get_stac_data(domain):
+            #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
+            collection = requests.get(domain)
+            collection_result = collection.json()
+            
+            # extract the dataset "items" and add metadata fields like extent, description, etc
+            all_data=[]
+            for dataset in result['links']:
+                if dataset['rel']=='item':
+                    result_ = requests.get(dataset['href'])
+                    output=result_.json()
+                    
+                    output['description']=collection_result['description']
+                    output['tags']=collection_result['keywords']
+                    output['extent']=collection_result['extent']
+                    output['license']=collection_result['license']
+                    output['providers']=collection_result['providers']
+                
+                    all_data.append(output)
+                    
+                    # create ckan dataJSON by creating datasets and resources from all_data dictionary
+                    dataJSON=[]
+                    dataset_names = ['CanopyBaseHeight','CanopyBulkDensity','CanopyCover','CanopyHeight','CanopyLayerCount','LadderFuelDensity','SurfaceFuels']
+
+                    for dataset in dataset_names:
+                        resources=[]
+                        for data in all_data:
+                            if data['properties']['metric']==dataset:
+                                resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
+                    
+                        dataJSON.append({'name':dataset.lower(), 'title':dataset,'notes' :data['description'],'license_id':data['license'],'url':"https://storage.googleapis.com/cfo-public/catalog.json",'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
+                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'])}],'resources':resources})
+
+            return dataJSON
 
         def _make_harvest_objs(datasets):
             '''Create HarvestObject with STAC dataset content.'''
@@ -357,32 +388,9 @@ class StacHarvester(HarvesterBase):
         log.debug('In StacHarvester gather_stage (%s)',
                   harvest_job.source.url)
 
-        #domain = urlparse(harvest_job.source.url).hostname
-        # set and read the catalog
-        #catalog_url = "https://storage.googleapis.com/cfo-public/catalog.json"
-        #catalog = requests.get(catalog_json)
-        #all_data = [catalog.json()]
-        
-        #catalog = pystac.Catalog.from_file(catalog_url)
-        #veg = catalog.get_child('vegetation')
-        #items = veg.get_all_items()
+        domain = urlparse(harvest_job.source.url).hostname
 
-        #all_data=[]
-        #for item in veg.get_all_items():
-        #    d={'name':item.properties['metric'],'title':item.id,'date':item.get_datetime(),'spatial_extent':item.bbox,'url':item.assets[item.properties['metric']].get_absolute_href()}
-        #    all_data.append(d)
-        """
-        all_data=[{'name': 'CanopyBaseHeight',
- 'title': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
- 'date': datetime.datetime(2016, 7, 15, 18, 0, tzinfo=tzutc()),
- 'spatial_extent': [32.3622708084737,
-  -124.518229214556,
-  42.0242173371539,
-  -113.191354530481],
- 'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif'}]
-        """
-        
-        
+        """    
         all_data = [{
                     'title': 'test_CFO_',
                     'name': 'test_CFO',
@@ -408,9 +416,10 @@ class StacHarvester(HarvesterBase):
                     'id':123478676767678
                 }
                 ]
+        """
         
-
-        object_ids, guids = _make_harvest_objs(all_data)
+        object_ids, guids = _make_harvest_objs(get_stac_data(domain))
+        #object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
 
         # Check if some datasets need to be deleted
