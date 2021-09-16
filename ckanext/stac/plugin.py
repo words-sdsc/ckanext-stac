@@ -11,11 +11,11 @@ from ckanext.harvest.interfaces import IHarvester
 from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 #import pystac
 import json
-#import requests
+import requests
 from ckan.lib.munge import munge_title_to_name, munge_tag
 from urlparse import urlparse
 import logging
-#import random
+import random
 log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
@@ -366,8 +366,20 @@ class StacHarvester(HarvesterBase):
                             if data['properties']['metric']==dataset:
                                 resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
                     
-                        dataJSON.append({'name':dataset.lower()+'temp', 'id':random.randint(10000000,1000000000), 'title':dataset+'temp','notes' :data['description'],'license_id':data['license'],'url':"https://storage.googleapis.com/cfo-public/catalog.json",'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
-                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'])}],'resources':resources})
+                        payload = {
+                                    'name':dataset.lower(), 
+                                    'id':random.randint(10000000,1000000000), 
+                                    'title':dataset,
+                                    'notes' :data['description'],
+                                    'tags':data['tags'],
+                                    'license_id':data['license'],
+                                    'url':"https://storage.googleapis.com/cfo-public/catalog.json",
+                                    'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
+                                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'])}],
+                                    'resources':resources  
+                                    }
+                        
+                        dataJSON.append(payload)
 
             return dataJSON
 
@@ -424,7 +436,7 @@ class StacHarvester(HarvesterBase):
                 ]
             """
         
-        
+        """
         all_data = [{'name': 'canopybaseheight',
  'id': 132475839,
  'title': 'CanopyBaseHeight',
@@ -468,13 +480,15 @@ class StacHarvester(HarvesterBase):
    'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2020-Summer-00010m.tif',
    'format': 'tiff'}]}]
+
+        """
         
 
         
         
         
-        #object_ids, guids = _make_harvest_objs(get_stac_data(domain))
-        object_ids, guids = _make_harvest_objs(all_data)
+        object_ids, guids = _make_harvest_objs(get_stac_data(domain))
+        #object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
 
         # Check if some datasets need to be deleted
