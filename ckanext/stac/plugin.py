@@ -426,9 +426,17 @@ class StacHarvester(HarvesterBase):
         
         
         all_data = [{'name': 'canopybaseheight',
- 'id': 574519729,
+ 'id': 132475839,
  'title': 'CanopyBaseHeight',
  'notes': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+ 'tags': ['vegetation',
+  'fuels',
+  'forest',
+  'california',
+  'ecology',
+  'conservation',
+  'salo',
+  'forest observatory'],
  'license_id': 'proprietary',
  'url': 'https://storage.googleapis.com/cfo-public/catalog.json',
  'extras': [{'key': 'spatial extent',
