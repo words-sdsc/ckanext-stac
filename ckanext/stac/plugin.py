@@ -396,7 +396,7 @@ class StacHarvester(HarvesterBase):
         #domain = urlparse(harvest_job.source.url).hostname
         domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
 
-          
+        """  
         all_data = [{
                     'title': 'test_CFO_',
                     'name': 'test_CFO',
@@ -422,8 +422,47 @@ class StacHarvester(HarvesterBase):
                     'id':123478676767678
                 }
                 ]
+            """
+        
+        
+        all_data = [{'name': 'canopybaseheight',
+ 'id': 574519729,
+ 'title': 'CanopyBaseHeight',
+ 'notes': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+ 'license_id': 'proprietary',
+ 'url': 'https://storage.googleapis.com/cfo-public/catalog.json',
+ 'extras': [{'key': 'spatial extent',
+   'value': '[[-124.48055685886423, 32.52883673637251, -114.13122247508852, 41.998339093297716]]'},
+  {'key': 'temporal extent',
+   'value': "[['2016-07-15T18:00:00Z', '2020-07-15T18:00:00Z']]"}],
+ 'resources': [{'name': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
+   'title': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
+   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
+   'format': 'tiff'},
+  {'name': 'California-Vegetation-CanopyBaseHeight-2017-Summer-00010m',
+   'title': 'California-Vegetation-CanopyBaseHeight-2017-Summer-00010m',
+   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2017-Summer-00010m.tif',
+   'format': 'tiff'},
+  {'name': 'California-Vegetation-CanopyBaseHeight-2018-Summer-00010m',
+   'title': 'California-Vegetation-CanopyBaseHeight-2018-Summer-00010m',
+   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2018-Summer-00010m.tif',
+   'format': 'tiff'},
+  {'name': 'California-Vegetation-CanopyBaseHeight-2019-Summer-00010m',
+   'title': 'California-Vegetation-CanopyBaseHeight-2019-Summer-00010m',
+   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2019-Summer-00010m.tif',
+   'format': 'tiff'},
+  {'name': 'California-Vegetation-CanopyBaseHeight-2020-Summer-00010m',
+   'title': 'California-Vegetation-CanopyBaseHeight-2020-Summer-00010m',
+   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
+   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2020-Summer-00010m.tif',
+   'format': 'tiff'}]}]
         
 
+        
         
         
         #object_ids, guids = _make_harvest_objs(get_stac_data(domain))
