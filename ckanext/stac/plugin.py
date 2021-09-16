@@ -175,7 +175,7 @@ class StacHarvester(HarvesterBase):
 
         
         # Add tags
-        #package_dict['tags'] = [{'name': munge_tag(t)} for t in res['tags']]
+        package_dict['tags'] = [{'name': munge_tag(t)} for t in res['tags']]
         
         """
         # Add domain_metadata to extras
