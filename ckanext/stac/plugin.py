@@ -156,7 +156,7 @@ class StacHarvester(HarvesterBase):
             'identifier': res['id'],
             
             'owner_org': local_org,
-            'resources': [],
+            'resources': res['resources']
         }
         """
         all_data = [{
