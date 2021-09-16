@@ -394,7 +394,7 @@ class StacHarvester(HarvesterBase):
         #domain = urlparse(harvest_job.source.url).hostname
         domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
 
-        """    
+          
         all_data = [{
                     'title': 'test_CFO_',
                     'name': 'test_CFO',
@@ -420,9 +420,9 @@ class StacHarvester(HarvesterBase):
                     'id':123478676767678
                 }
                 ]
+        
+
         """
-
-
         all_data = [{'name': 'canopybaseheighttemp',
  'id': 574519729,
  'title': 'CanopyBaseHeighttemp',
@@ -458,6 +458,7 @@ class StacHarvester(HarvesterBase):
    'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2020-Summer-00010m.tif',
    'format': 'tiff'}]}]
+        """
         
         #object_ids, guids = _make_harvest_objs(get_stac_data(domain))
         object_ids, guids = _make_harvest_objs(all_data)
