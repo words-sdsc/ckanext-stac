@@ -15,7 +15,7 @@ import requests
 from ckan.lib.munge import munge_title_to_name, munge_tag
 from urlparse import urlparse
 import logging
-import random
+#import random
 log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
@@ -368,7 +368,7 @@ class StacHarvester(HarvesterBase):
                     
                         payload = {
                                     'name':dataset.lower(), 
-                                    'id':random.randint(10000000,1000000000), 
+                                    'id':dataset.lower(), 
                                     'title':dataset,
                                     'notes' :data['description'],
                                     'tags':data['tags'],
