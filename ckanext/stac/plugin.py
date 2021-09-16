@@ -137,7 +137,9 @@ class StacHarvester(HarvesterBase):
             context.copy(),
             {'id': harvest_object.source.id}
         )
-        local_org = source_dataset.get('owner_org')
+        #local_org = source_dataset.get('owner_org')
+
+        #local_org = urlparse(harvest_job.source.org).hostname
 
         res = json.loads(harvest_object.content)
 
@@ -150,7 +152,7 @@ class StacHarvester(HarvesterBase):
             'tags': [],
             'extras': [],
             
-            'owner_org': local_org,
+            'owner_org': 'test_cfo',
             'resources': [],
         }
         """
