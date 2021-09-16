@@ -15,7 +15,7 @@ import requests
 from ckan.lib.munge import munge_title_to_name, munge_tag
 from urlparse import urlparse
 import logging
-#import random
+import random
 log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
@@ -343,7 +343,7 @@ class StacHarvester(HarvesterBase):
             
             # extract the dataset "items" and add metadata fields like extent, description, etc
             all_data=[]
-            for dataset in result['links']:
+            for dataset in collection_result['links']:
                 if dataset['rel']=='item':
                     result_ = requests.get(dataset['href'])
                     output=result_.json()
@@ -368,7 +368,7 @@ class StacHarvester(HarvesterBase):
                     
                         payload = {
                                     'name':dataset.lower(), 
-                                    'id':dataset.lower(), 
+                                    'id':random.randint(10000000,1000000000), 
                                     'title':dataset,
                                     'notes' :data['description'],
                                     'tags':data['tags'],
