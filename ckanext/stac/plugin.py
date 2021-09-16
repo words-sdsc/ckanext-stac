@@ -364,7 +364,7 @@ class StacHarvester(HarvesterBase):
                             if data['properties']['metric']==dataset:
                                 resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
                     
-                        dataJSON.append({'name':dataset.lower(), 'id':random.randint(10000000,1000000000), 'title':dataset,'notes' :data['description'],'license_id':data['license'],'url':"https://storage.googleapis.com/cfo-public/catalog.json",'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
+                        dataJSON.append({'name':dataset.lower()+'temp', 'id':random.randint(10000000,1000000000), 'title':dataset+'temp','notes' :data['description'],'license_id':data['license'],'url':"https://storage.googleapis.com/cfo-public/catalog.json",'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
                         {'key':'temporal extent','value':str(data['extent']['temporal']['interval'])}],'resources':resources})
 
             return dataJSON
