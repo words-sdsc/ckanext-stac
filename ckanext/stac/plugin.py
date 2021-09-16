@@ -146,12 +146,12 @@ class StacHarvester(HarvesterBase):
             'name': self._gen_new_name(res['name']),
             'url': res['url'],
             'notes': res['description'],
-            'author': res['author'],
+            'author': [],
             'tags': [],
-            'extras': res['extras'],
+            'extras': [],
             
             'owner_org': local_org,
-            'resources': res['resources'],
+            'resources': [],
         }
         """
         all_data = [{
