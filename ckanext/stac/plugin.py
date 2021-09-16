@@ -152,7 +152,7 @@ class StacHarvester(HarvesterBase):
             'notes': res['notes'],
             'author': [],
             'tags': [],
-            'extras': [],
+            'extras': res['extras'],
             'identifier': res['id'],
             
             'owner_org': local_org,
