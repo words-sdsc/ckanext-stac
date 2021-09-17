@@ -345,7 +345,7 @@ class StacHarvester(HarvesterBase):
             polygon = [[lon1,lat1],[lon2,lat1],[lon2,lat2],[lon1,lat2]]
             polygon.append(polygon[0])  #repeat the first point to create a 'closed loop'
             
-            return {"type": "Polygon", "coordinates": [polygon]}
+            return {"type".encode('utf-8'): "Polygon".encode('utf-8'), "coordinates".encode('utf-8'): [polygon]}
         
         
         def get_cfo_data(domain):
@@ -441,7 +441,7 @@ class StacHarvester(HarvesterBase):
                             'tags':data['keywords'],
                             'license_id':data['license'],
                             'url':url,
-                            'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
+                            'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
                         {'key':'temporal extent','value':str(temporal_extent)},
                         {'key':'sci:doi','value':data['sci:doi']},
                               {'key':'sci:citation','value':data['sci:citation']},
