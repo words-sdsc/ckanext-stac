@@ -405,8 +405,8 @@ class StacHarvester(HarvesterBase):
         log.debug('In StacHarvester gather_stage (%s)',
                   harvest_job.source.url)
 
-        #domain = urlparse(harvest_job.source.url).hostname
-        domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
+        domain = urlparse(harvest_job.source.url).hostname
+        #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
 
         """  
         all_data = [{
