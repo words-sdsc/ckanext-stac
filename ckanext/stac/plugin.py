@@ -150,11 +150,11 @@ class StacHarvester(HarvesterBase):
             'name': self._gen_new_name(res['name']),
             'url': res['url'],
             'notes': res['notes'],
-            'author': [],
+            
             'tags': [],
             'extras': res['extras'],
             'identifier': res['id'],
-            'license_id': res['license_id']
+            'license_id': res['license_id'],
             'owner_org': local_org,
             'resources': res['resources']
         }
@@ -336,6 +336,18 @@ class StacHarvester(HarvesterBase):
                 for dataset in datasets:
                     yield dataset
         """
+        def bbox_to_polygon(bbox):
+    
+            lon1=bbox[0]
+            lon2=bbox[2]
+            lat1=bbox[3]
+            lat2=bbox[1]
+            polygon = [[lon1,lat1],[lon2,lat1],[lon2,lat2],[lon1,lat2]]
+            polygon.append(polygon[0])  #repeat the first point to create a 'closed loop'
+            
+            return {"type": "Polygon", "coordinates": [polygon]}
+        
+        
         def get_stac_data(domain):
             #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
             collection = requests.get(domain)
@@ -374,7 +386,7 @@ class StacHarvester(HarvesterBase):
                                     'tags':data['tags'],
                                     'license_id':data['license'],
                                     'url':"https://storage.googleapis.com/cfo-public/catalog.json",
-                                    'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'][0])},
+                                    'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
                                         {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
                                     'resources':resources  
                                     }
