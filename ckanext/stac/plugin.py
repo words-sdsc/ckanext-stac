@@ -345,7 +345,7 @@ class StacHarvester(HarvesterBase):
             polygon = [[lon1,lat1],[lon2,lat1],[lon2,lat2],[lon1,lat2]]
             polygon.append(polygon[0])  #repeat the first point to create a 'closed loop'
             
-            return {"type".encode('utf-8'): "Polygon".encode('utf-8'), "coordinates".encode('utf-8'): [polygon]}
+            return json.dumps({"type".encode('utf-8'): "Polygon".encode('utf-8'), "coordinates".encode('utf-8'): [polygon]})
         
         
         def get_cfo_data(domain):
