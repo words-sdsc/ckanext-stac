@@ -378,6 +378,7 @@ class StacHarvester(HarvesterBase):
                             if data['properties']['metric']==dataset:
                                 resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
                     
+                        temporal_extent = [x.encode('utf-8') for x in data['extent']['temporal']['interval'][0]] #convert from unicode to utf-8
                         payload = {
                                     'name':dataset.lower(), 
                                     'id':random.randint(10000000,1000000000), 
@@ -386,8 +387,9 @@ class StacHarvester(HarvesterBase):
                                     'tags':data['tags'],
                                     'license_id':data['license'],
                                     'url':"https://storage.googleapis.com/cfo-public/catalog.json",
-                                    'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
-                                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
+                                    'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
+                                        {'key':'temporal extent','value':str(temporal_extent)},
+                                        {'key':'providers','value':str(data['providers'])}],
                                     'resources':resources  
                                     }
                         
