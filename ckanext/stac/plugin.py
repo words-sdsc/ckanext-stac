@@ -441,7 +441,7 @@ class StacHarvester(HarvesterBase):
                             'tags':data['keywords'],
                             'license_id':data['license'],
                             'url':url,
-                            'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
+                            'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]).encode('utf-8'))},
                         {'key':'temporal extent','value':str(temporal_extent)}],
                             'resources':resources
                             }
