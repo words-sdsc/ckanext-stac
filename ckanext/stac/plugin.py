@@ -431,7 +431,8 @@ class StacHarvester(HarvesterBase):
                                     }
                                 )
                 url=[element['href'] for element in data['links'] if element['rel'] == 'self'][0]     
-                    
+                temporal_extent = [x.encode('utf-8') for x in data['extent']['temporal']['interval'][0]] #convert from unicode to utf-8
+
                 payload = {
                             'name':data['title'].lower(), 
                             'id':random.randint(10000000,1000000000), 
@@ -441,7 +442,10 @@ class StacHarvester(HarvesterBase):
                             'license_id':data['license'],
                             'url':url,
                             'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
-                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
+                        {'key':'temporal extent','value':str(temporal_extent)},
+                        {'key':'providers','value':data['providers']},
+                              {'key':'sci:doi','value':data['sci:doi']},
+                              {'key':'sci:citation','value':data['sci:citation']}],
                             'resources':resources
                             }
                         
