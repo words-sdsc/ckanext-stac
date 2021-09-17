@@ -374,8 +374,8 @@ class StacHarvester(HarvesterBase):
                                     'tags':data['tags'],
                                     'license_id':data['license'],
                                     'url':"https://storage.googleapis.com/cfo-public/catalog.json",
-                                    'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'])},
-                                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'])}],
+                                    'extras': [{'key':'spatial extent','value':str(data['extent']['spatial']['bbox'][0])},
+                                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
                                     'resources':resources  
                                     }
                         
