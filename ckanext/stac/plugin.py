@@ -414,7 +414,7 @@ class StacHarvester(HarvesterBase):
             
             dataJSON=[]
             #all_data[0]
-            for data in all_data[0:10]:
+            for data in all_data:
             
                 #get resources
                 resources=[]
