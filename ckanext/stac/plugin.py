@@ -430,7 +430,7 @@ class StacHarvester(HarvesterBase):
                                     'format':'laz'
                                     }
                                 )
-                    
+                url=[element['href'] for element in data['links'] if element['rel'] == 'self'][0]     
                     
                 payload = {
                             'name':data['title'].lower(), 
@@ -439,7 +439,7 @@ class StacHarvester(HarvesterBase):
                             'notes' :data['description'],
                             'tags':data['keywords'],
                             'license_id':data['license'],
-                            'url':"https://storage.googleapis.com/cfo-public/catalog.json",
+                            'url':url,
                             'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
                         {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
                             'resources':resources
@@ -553,7 +553,7 @@ class StacHarvester(HarvesterBase):
 
         """
         
-        if domain == 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
+        if domain == 'https://storage.googleapis.com/cfo-public/vegetation/collection.json':
         
             object_ids, guids = _make_harvest_objs(get_cfo_data(domain))
 
