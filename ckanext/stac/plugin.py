@@ -5,7 +5,6 @@ from simplejson.scanner import JSONDecodeError
 from ckan import model
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckan.plugins.core import implements
-#from ckan.plugins.core import SingletonPlugin, implements
 import ckan.plugins.toolkit as toolkit
 from ckanext.harvest.interfaces import IHarvester
 from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
@@ -19,7 +18,6 @@ import random
 log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
-#class StacHarvester(SingletonPlugin):
     '''
     A SpatioTemporal Asset Catalog (STAC) harvester
     '''
@@ -158,75 +156,10 @@ class StacHarvester(HarvesterBase):
             'owner_org': local_org,
             'resources': res['resources']
         }
-        """
-        all_data = [{
-                    'title': 'test_CFO_',
-                    'name': 'test_CFO',
-                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
-                    'notes': 'fake description',
-                    'author': 'fake author',
-                    'tags': [],
-                    'extras': [],
-                    'identifier': None,
-                    'owner_org': 'test_cfo',
-                    'id':123478676767677
-                }]
-        """
+       
 
-        
         # Add tags
         package_dict['tags'] = [{'name': munge_tag(t)} for t in res['tags']]
-        
-        """
-        # Add domain_metadata to extras
-        package_dict['extras'].extend(res['classification']
-                                      .get('domain_metadata', []))
-
-        # Add source createdAt to extras
-        package_dict['extras'].append({
-            'key': 'source_created_at',
-            'value': res['resource']['createdAt']
-        })
-
-        # Add source updatedAt to extras
-        package_dict['extras'].append({
-            'key': 'source_updated_at',
-            'value': res['resource']['updatedAt']
-        })
-
-        # Add owner_display_name to extras
-        package_dict['extras'].append({
-            'key': 'owner_display_name',
-            'value': res.get('owner', {}).get('display_name')
-        })
-
-        # Add categories to extras
-        package_dict['extras'].append({
-            'key': 'categories',
-            'value': [t
-                      for t in res['classification'].get('categories', [])
-                      + res['classification'].get('domain_categories', [])],
-        })
-
-        # Add metadata.license if available
-        if res['metadata'].get('license', False):
-            package_dict['extras'].append({
-                'key': 'license',
-                'value': res['metadata']['license']
-            })
-
-        # Add provenance
-        if res['resource'].get('provenance', False):
-            package_dict['provenance'] = res['resource']['provenance']
-
-        # Resources
-        package_dict['resources'] = [{
-            'url': DOWNLOAD_ENDPOINT_TEMPLATE.format(
-                domain=urlparse(harvest_object.source.url).hostname,
-                resource_id=res['resource']['id']),
-            'format': 'CSV'
-        }]
-        """
 
         return package_dict
 
@@ -295,47 +228,7 @@ class StacHarvester(HarvesterBase):
         :param harvest_job: HarvestJob object
         :returns: A list of HarvestObject ids
         '''
-        """
-	
-
-        def _request_datasets_from_socrata(domain, limit=100, offset=0):
-            api_request_url = \
-                '{0}?domains={1}&search_context={1}' \
-                '&only=datasets&limit={2}&offset={3}' \
-                .format(BASE_API_ENDPOINT, domain, limit, offset)
-            log.debug('Requesting {}'.format(api_request_url))
-            api_response = requests.get(api_request_url)
-
-            try:
-                api_json = api_response.json()
-            except JSONDecodeError:
-                self._save_gather_error(
-                    'Gather error: Invalid response from {}'
-                    .format(api_request_url),
-                    harvest_job)
-                return None
-
-            if 'error' in api_json:
-                self._save_gather_error('Gather error: {}'
-                                        .format(api_json['error']),
-                                        harvest_job)
-                return None
-
-            return api_json['results']
-
-        def _page_datasets(domain, batch_number):
-            '''Request datasets by page until an empty array is returned'''
-            current_offset = 0
-            while True:
-                datasets = \
-                    _request_datasets_from_socrata(domain, batch_number,
-                                                   current_offset)
-                if datasets is None or len(datasets) == 0:
-                    raise StopIteration
-                current_offset = current_offset + batch_number
-                for dataset in datasets:
-                    yield dataset
-        """
+        
         def bbox_to_polygon(bbox):
     
             lon1=bbox[0]
@@ -413,7 +306,7 @@ class StacHarvester(HarvesterBase):
             #convert to ckan format
             
             dataJSON=[]
-            #all_data[0]
+            
             for data in all_data:
             
                 #get resources
@@ -482,82 +375,7 @@ class StacHarvester(HarvesterBase):
 
         #domain = urlparse(harvest_job.source.url).hostname
         domain = harvest_job.source.url
-        #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
-
-        """  
-        all_data = [{
-                    'title': 'test_CFO_',
-                    'name': 'test_CFO',
-                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
-                    'notes': 'fake description',
-                    'author': 'fake author',
-                    'tags': [],
-                    'extras': [],
-                    'identifier': None,
-                    'owner_org': 'test_cfo',
-                    'id':123478676767677
-                },
-                {
-                    'title': 'test_CFO_2',
-                    'name': 'test_CFO2',
-                    'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
-                    'notes': 'fake description2',
-                    'author': 'fake author2',
-                    'tags': [],
-                    'extras': [],
-                    'identifier': None,
-                    'owner_org': 'test_cfo',
-                    'id':123478676767678
-                }
-                ]
-            """
         
-        """
-        all_data = [{'name': 'canopybaseheight',
- 'id': 132475839,
- 'title': 'CanopyBaseHeight',
- 'notes': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
- 'tags': ['vegetation',
-  'fuels',
-  'forest',
-  'california',
-  'ecology',
-  'conservation',
-  'salo',
-  'forest observatory'],
- 'license_id': 'proprietary',
- 'url': 'https://storage.googleapis.com/cfo-public/catalog.json',
- 'extras': [{'key': 'spatial extent',
-   'value': '[[-124.48055685886423, 32.52883673637251, -114.13122247508852, 41.998339093297716]]'},
-  {'key': 'temporal extent',
-   'value': "[['2016-07-15T18:00:00Z', '2020-07-15T18:00:00Z']]"}],
- 'resources': [{'name': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
-   'title': 'California-Vegetation-CanopyBaseHeight-2016-Summer-00010m',
-   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
-   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2016-Summer-00010m.tif',
-   'format': 'tiff'},
-  {'name': 'California-Vegetation-CanopyBaseHeight-2017-Summer-00010m',
-   'title': 'California-Vegetation-CanopyBaseHeight-2017-Summer-00010m',
-   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
-   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2017-Summer-00010m.tif',
-   'format': 'tiff'},
-  {'name': 'California-Vegetation-CanopyBaseHeight-2018-Summer-00010m',
-   'title': 'California-Vegetation-CanopyBaseHeight-2018-Summer-00010m',
-   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
-   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2018-Summer-00010m.tif',
-   'format': 'tiff'},
-  {'name': 'California-Vegetation-CanopyBaseHeight-2019-Summer-00010m',
-   'title': 'California-Vegetation-CanopyBaseHeight-2019-Summer-00010m',
-   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
-   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2019-Summer-00010m.tif',
-   'format': 'tiff'},
-  {'name': 'California-Vegetation-CanopyBaseHeight-2020-Summer-00010m',
-   'title': 'California-Vegetation-CanopyBaseHeight-2020-Summer-00010m',
-   'description': 'Patterns of forest structure and forest fuels that drive wildfire behavior. Read more at https://forestobservatory.com/about.html',
-   'url': 'https://storage.googleapis.com/cfo-public/vegetation/California-Vegetation-CanopyBaseHeight-2020-Summer-00010m.tif',
-   'format': 'tiff'}]}]
-
-        """
         
         if domain == 'https://storage.googleapis.com/cfo-public/vegetation/collection.json':
         
@@ -565,8 +383,7 @@ class StacHarvester(HarvesterBase):
 
         else:
             object_ids, guids = _make_harvest_objs(get_opentopo_data(domain))
-        #object_ids, guids = _make_harvest_objs(all_data)
-        #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
+        
 
         # Check if some datasets need to be deleted
         object_ids_to_delete = \

@@ -33,6 +33,8 @@ ckanext-stac
 =============
 A SpatioTemporal Asset Catalog (STAC) harvester extension for ckan. See https://stacindex.org/ for more details.
 
+It currently supports STAC catalogs from California Forest Observatory (https://forestobservatory.com/, https://stacindex.org/catalogs/forest-observatory#/?t=1) and OpenTOPOGRAPHY (https://www.opentopography.org/, https://stacindex.org/catalogs/opentopography#/)
+
 .. Put a description of your extension here:
    What does it do? What features does it have?
    Consider including some screenshots or embedding a video!
