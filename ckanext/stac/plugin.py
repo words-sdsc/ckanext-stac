@@ -348,7 +348,7 @@ class StacHarvester(HarvesterBase):
             return {"type": "Polygon", "coordinates": [polygon]}
         
         
-        def get_stac_data(domain):
+        def get_cfo_data(domain):
             #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
             collection = requests.get(domain)
             collection_result = collection.json()
@@ -395,6 +395,63 @@ class StacHarvester(HarvesterBase):
 
             return dataJSON
 
+        def get_opentopo_data(domain):
+    
+            catalog = requests.get(domain)
+            catalog_result = catalog.json()
+            
+            # get all the datasets in stac format
+            all_data=[]          
+            for dataset in catalog_result['links']:
+                if dataset['rel']=='child':
+                    result_ = requests.get(dataset['href'])
+                    output=result_.json()
+                    all_data.append(output)
+                    
+            #convert to ckan format
+            
+            dataJSON=[]
+            #all_data[0]
+            for data in all_data[0:10]:
+            
+                #get resources
+                resources=[]
+                for item in data['links']:
+                    if item['rel']=='child':
+                        result_ = requests.get(item['href'])
+                        out=result_.json()
+                    
+                        resources.append(
+                                    {
+                                    'name':out['assets']['Data']['title'],
+                                    'title':out['assets']['Data']['title'],
+                                    'description':out['description'],
+                                    'url':out['assets']['Data']['href'],
+                                    'format':'laz'
+                                    }
+                                )
+                    
+                    
+                payload = {
+                            'name':data['title'].lower(), 
+                            'id':random.randint(10000000,1000000000), 
+                            'title':data['title'],
+                            'notes' :data['description'],
+                            'tags':data['keywords'],
+                            'license_id':data['license'],
+                            'url':"https://storage.googleapis.com/cfo-public/catalog.json",
+                            'extras': [{'key':'spatial extent','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
+                        {'key':'temporal extent','value':str(data['extent']['temporal']['interval'][0])}],
+                            'resources':resources
+                            }
+                        
+                dataJSON.append(payload)
+
+            return dataJSON
+        
+        
+        
+        
         def _make_harvest_objs(datasets):
             '''Create HarvestObject with STAC dataset content.'''
             obj_ids = []
@@ -496,11 +553,12 @@ class StacHarvester(HarvesterBase):
 
         """
         
+        if domain == 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
+        
+            object_ids, guids = _make_harvest_objs(get_cfo_data(domain))
 
-        
-        
-        
-        object_ids, guids = _make_harvest_objs(get_stac_data(domain))
+        else:
+            object_ids, guids = _make_harvest_objs(get_opentopo_data(domain))
         #object_ids, guids = _make_harvest_objs(all_data)
         #object_ids, guids = _make_harvest_objs(_page_datasets(domain, 100))
 
