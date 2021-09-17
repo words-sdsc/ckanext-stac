@@ -154,7 +154,7 @@ class StacHarvester(HarvesterBase):
             'tags': [],
             'extras': res['extras'],
             'identifier': res['id'],
-            
+            'license_id': res['license_id']
             'owner_org': local_org,
             'resources': res['resources']
         }
