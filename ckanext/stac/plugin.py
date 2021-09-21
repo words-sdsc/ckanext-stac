@@ -245,9 +245,9 @@ class StacHarvester(HarvesterBase):
             if isinstance(data, basestring):
                 return str(data)
             elif isinstance(data, collections.Mapping):
-                return dict(map(convert, data.iteritems()))
+                return dict(map(convert_unicode_to_str, data.iteritems()))
             elif isinstance(data, collections.Iterable):
-                return type(data)(map(convert, data))
+                return type(data)(map(convert_unicode_to_str, data))
             else:
                 return data
         
