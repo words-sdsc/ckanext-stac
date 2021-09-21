@@ -242,13 +242,17 @@ class StacHarvester(HarvesterBase):
             return json.dumps({"type".encode('utf-8'): "Polygon".encode('utf-8'), "coordinates".encode('utf-8'): [polygon]})
         
         def convert_unicode_to_str(data):
-            if isinstance(data, basestring):
-                return str(data)
-            elif isinstance(data, collections.Mapping):
-                return dict(map(convert_unicode_to_str, data.iteritems()))
-            elif isinstance(data, collections.Iterable):
-                return type(data)(map(convert_unicode_to_str, data))
-            else:
+            
+            try:
+                if isinstance(data, basestring):
+                    return str(data)
+                elif isinstance(data, collections.Mapping):
+                    return dict(map(convert_unicode_to_str, data.iteritems()))
+                elif isinstance(data, collections.Iterable):
+                    return type(data)(map(convert_unicode_to_str, data))
+                else:
+                    return data
+            except:
                 return data
         
         def get_cfo_data(domain):
@@ -350,7 +354,7 @@ class StacHarvester(HarvesterBase):
                         {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
                         {'key':'sci:doi','value':data['sci:doi']},
                               {'key':'sci:citation','value':data['sci:citation']},
-                              {'key':'providers','value':str(data['providers'])}],
+                              {'key':'providers','value':str(convert_unicode_to_str(data['providers']))}],
                             'resources':resources
                             }
                         
