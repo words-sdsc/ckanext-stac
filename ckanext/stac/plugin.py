@@ -15,6 +15,7 @@ from ckan.lib.munge import munge_title_to_name, munge_tag
 from urlparse import urlparse
 import logging
 import random
+import collections
 log = logging.getLogger(__name__)
 
 class StacHarvester(HarvesterBase):
@@ -240,6 +241,15 @@ class StacHarvester(HarvesterBase):
             
             return json.dumps({"type".encode('utf-8'): "Polygon".encode('utf-8'), "coordinates".encode('utf-8'): [polygon]})
         
+        def convert_unicode_to_str(data):
+            if isinstance(data, basestring):
+                return str(data)
+            elif isinstance(data, collections.Mapping):
+                return dict(map(convert, data.iteritems()))
+            elif isinstance(data, collections.Iterable):
+                return type(data)(map(convert, data))
+            else:
+                return data
         
         def get_cfo_data(domain):
             #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
@@ -281,8 +291,8 @@ class StacHarvester(HarvesterBase):
                                     'license_id':data['license'],
                                     'url':"https://storage.googleapis.com/cfo-public/catalog.json",
                                     'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
-                                        {'key':'temporal','value':str(json.dumps({"endTime": temporal_extent[1],"startTime": temporal_extent[0]}))},
-                                        {'key':'providers','value':str(data['providers'])}],
+                                        {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
+                                        {'key':'providers','value':str(convert_unicode_to_str(data['providers']))}],
                                     'resources':resources  
                                     }
                         
@@ -337,7 +347,7 @@ class StacHarvester(HarvesterBase):
                             'license_id':data['license'],
                             'url':url,
                             'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
-                        {'key':'temporal extent','value':str(temporal_extent)},
+                        {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
                         {'key':'sci:doi','value':data['sci:doi']},
                               {'key':'sci:citation','value':data['sci:citation']},
                               {'key':'providers','value':str(data['providers'])}],
