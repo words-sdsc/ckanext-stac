@@ -350,7 +350,7 @@ class StacHarvester(HarvesterBase):
                         {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
                         {'key':'sci:doi','value':data['sci:doi']},
                               {'key':'sci:citation','value':data['sci:citation']},
-                              {'key':'providers','value':str(data['providers'])}],
+                              {'key':'providers','value':str(convert_unicode_to_str(data['providers']))}],
                             'resources':resources
                             }
                         
