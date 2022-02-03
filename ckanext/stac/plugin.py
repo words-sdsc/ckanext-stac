@@ -314,8 +314,11 @@ class StacHarvester(HarvesterBase):
             for dataset in catalog_result['links']:
                 if dataset['rel']=='child':
                     result_ = requests.get(dataset['href'], verify=False)
-                    output=result_.json()
-                    all_data.append(output)
+                    try:
+                        output=result_.json()
+                        all_data.append(output)
+                    except:
+                        pass
                     
             #convert to ckan format
             
