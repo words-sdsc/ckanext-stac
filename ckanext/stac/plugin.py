@@ -256,51 +256,69 @@ class StacHarvester(HarvesterBase):
                 return data
         
         def get_cfo_data(domain):
-            #domain = 'https://storage.googleapis.com/cfo-public/vegetation/collection.json'
-            collection = requests.get(domain)
-            collection_result = collection.json()
+            # get catalog with wildfire and vegetation collections
+            #domain = 'https://storage.googleapis.com/cfo-public/catalog.json'
+            catalog = requests.get(domain, verify=False)
+            catalog_result = catalog.json()
             
-            # extract the dataset "items" and add metadata fields like extent, description, etc
+            # get all the collections
+            full_catalog=[]          
+            for dataset in catalog_result['links']:
+                if dataset['rel']=='child':
+                    result_ = requests.get(dataset['href'], verify=False)
+                    try:
+                        output=result_.json()
+                        full_catalog.append(output)
+                    except:
+                        pass
+            
             all_data=[]
-            for dataset in collection_result['links']:
-                if dataset['rel']=='item':
-                    result_ = requests.get(dataset['href'])
-                    output=result_.json()
-                    
-                    output['description']=collection_result['description']
-                    output['tags']=collection_result['keywords']
-                    output['extent']=collection_result['extent']
-                    output['license']=collection_result['license']
-                    output['providers']=collection_result['providers']
-                
-                    all_data.append(output)
+            for collection_result in full_catalog:
+                for dataset in collection_result['links']:
+                    if dataset['rel']=='item':
+                        result_ = requests.get(dataset['href'], verify=False)
+                        output=result_.json()
+
+                        output['description']=collection_result['description']
+                        output['tags']=collection_result['keywords']
+                        output['extent']=collection_result['extent']
+                        output['license']=collection_result['license']
+                        output['providers']=collection_result['providers']
+
+                        all_data.append(output)
                     
                     # create ckan dataJSON by creating datasets and resources from all_data dictionary
-                    dataJSON=[]
-                    dataset_names = ['CanopyBaseHeight','CanopyBulkDensity','CanopyCover','CanopyHeight','CanopyLayerCount','LadderFuelDensity','SurfaceFuels']
+                    dataset_names = ['CanopyBaseHeight','CanopyBulkDensity','CanopyCover','CanopyHeight','CanopyLayerCount','LadderFuelDensity','SurfaceFuels','DryVegetation','GreenVegetation','BurnProbability','BurnSeverity','FlameLength','Hazard','SpreadRate']
+                    dataJSON = generate_dataJSON(dataset_names)
+            
+            return dataJSON
 
-                    for dataset in dataset_names:
-                        resources=[]
-                        for data in all_data:
-                            if data['properties']['metric']==dataset:
-                                resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
-                    
-                        temporal_extent = [x.encode('utf-8') for x in data['extent']['temporal']['interval'][0]] #convert from unicode to utf-8
-                        payload = {
-                                    'name':dataset.lower(), 
-                                    'id':random.randint(10000000,1000000000), 
-                                    'title':dataset,
-                                    'notes' :data['description'],
-                                    'tags':data['tags'],
-                                    'license_id':data['license'],
-                                    'url':"https://storage.googleapis.com/cfo-public/catalog.json",
-                                    'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
-                                        {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
-                                        {'key':'providers','value':str(convert_unicode_to_str(data['providers']))}],
-                                    'resources':resources  
-                                    }
-                        
-                        dataJSON.append(payload)
+        
+        def generate_dataJSON(dataset_names):
+            
+            dataJSON=[]
+            for dataset in dataset_names:
+                resources=[]
+                for data in all_data:
+                    if data['properties']['metric']==dataset:
+                        resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
+
+                temporal_extent = [x.encode('utf-8') for x in data['extent']['temporal']['interval'][0]] #convert from unicode to utf-8
+                payload = {
+                            'name':dataset.lower(), 
+                            'id':random.randint(10000000,1000000000), 
+                            'title':dataset,
+                            'notes' :data['description'],
+                            'tags':data['tags'],
+                            'license_id':data['license'],
+                            'url':"https://storage.googleapis.com/cfo-public/catalog.json",
+                            'extras': [{'key':'spatial','value':str(bbox_to_polygon(data['extent']['spatial']['bbox'][0]))},
+                                {'key':'temporal','value':str(json.dumps({"startTime": temporal_extent[0], "endTime": temporal_extent[1]}))},
+                                {'key':'providers','value':str(convert_unicode_to_str(data['providers']))}],
+                            'resources':resources  
+                            }
+                
+                dataJSON.append(payload)
 
             return dataJSON
 
@@ -394,7 +412,7 @@ class StacHarvester(HarvesterBase):
         domain = harvest_job.source.url
         
         
-        if domain == 'https://storage.googleapis.com/cfo-public/vegetation/collection.json':
+        if domain == 'https://storage.googleapis.com/cfo-public/catalog.json':
         
             object_ids, guids = _make_harvest_objs(get_cfo_data(domain))
 
