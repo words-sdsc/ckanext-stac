@@ -306,14 +306,14 @@ class StacHarvester(HarvesterBase):
 
         def get_opentopo_data(domain):
     
-            catalog = requests.get(domain)
+            catalog = requests.get(domain, verify=False)
             catalog_result = catalog.json()
             
             # get all the datasets in stac format
             all_data=[]          
             for dataset in catalog_result['links']:
                 if dataset['rel']=='child':
-                    result_ = requests.get(dataset['href'])
+                    result_ = requests.get(dataset['href'], verify=False)
                     output=result_.json()
                     all_data.append(output)
                     
@@ -327,7 +327,7 @@ class StacHarvester(HarvesterBase):
                 resources=[]
                 for item in data['links']:
                     if item['rel']=='child':
-                        result_ = requests.get(item['href'])
+                        result_ = requests.get(item['href'], verify=False)
                         out=result_.json()
                     
                         resources.append(
