@@ -288,22 +288,24 @@ class StacHarvester(HarvesterBase):
                         all_data.append(output)
                     
                     # create ckan dataJSON by creating datasets and resources from all_data dictionary
-                    dataset_names = ['CanopyBaseHeight','CanopyBulkDensity','CanopyCover','CanopyHeight','CanopyLayerCount','LadderFuelDensity','SurfaceFuels','DryVegetation','GreenVegetation','BurnProbability','BurnSeverity','FlameLength','Hazard','SpreadRate']
-                    dataJSON = generate_dataJSON(dataset_names)
             
+            dataJSON = generate_dataJSON(all_data)
+        
             return dataJSON
+            
 
         
-        def generate_dataJSON(dataset_names):
+        def generate_dataJSON(all_data):
             
             dataJSON=[]
-            for dataset in dataset_names:
+            for dataset in ['CanopyBaseHeight','CanopyBulkDensity','CanopyCover','CanopyHeight','CanopyLayerCount','LadderFuelDensity','SurfaceFuels','DryVegetation','GreenVegetation','BurnProbability','BurnSeverity','FlameLength','Hazard','SpreadRate']:
                 resources=[]
                 for data in all_data:
                     if data['properties']['metric']==dataset:
                         resources.append({'name':data['id'],'title':data['id'],'description':data['description'],'url':data['assets'][dataset]['href'],'format':'tiff'})  
 
                 temporal_extent = [x.encode('utf-8') for x in data['extent']['temporal']['interval'][0]] #convert from unicode to utf-8
+                
                 payload = {
                             'name':dataset.lower(), 
                             'id':random.randint(10000000,1000000000), 
