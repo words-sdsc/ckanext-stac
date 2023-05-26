@@ -12,7 +12,7 @@ from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 import json
 import requests
 from ckan.lib.munge import munge_title_to_name, munge_tag
-from urlparse import urlparse
+from urllib.parse import urlparse
 import logging
 import random
 import collections
